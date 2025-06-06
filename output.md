@@ -1,0 +1,1 @@
+AI learns patterns from data to make smart decisions or perform tasks.
