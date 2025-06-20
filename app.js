@@ -17,9 +17,9 @@ app.post('/webhook', async (req, res) => {
     if (event.type === 'message' && event.message.type === 'text') {
       const userInput = event.message.text.trim();
 
-      // ✅ ถ้าผู้ใช้พิมพ์ "ติดต่อ" แสดง Flex Message
+      // ✅ กรณีผู้ใช้เลือก "ติดต่อ"
       if (userInput === 'ติดต่อ') {
-        const flexMsg = {
+        const contactFlex = {
           type: 'flex',
           altText: 'ติดต่อเรา',
           contents: {
@@ -37,14 +37,13 @@ app.post('/webhook', async (req, res) => {
               contents: [
                 {
                   type: 'text',
-                  text: 'ติดต่อเรา',
+                  text: 'ช่องทางการติดต่อ',
                   weight: 'bold',
-                  size: 'xl',
-                  margin: 'md'
+                  size: 'xl'
                 },
                 {
                   type: 'text',
-                  text: 'หากคุณมีคำถามหรือต้องการความช่วยเหลือ กดปุ่มด้านล่างเพื่อเริ่มต้น',
+                  text: 'สามารถทัก LINE หรือเยี่ยมชมเว็บไซต์ได้เลยค่ะ',
                   size: 'sm',
                   color: '#666666',
                   wrap: true,
@@ -55,7 +54,6 @@ app.post('/webhook', async (req, res) => {
             footer: {
               type: 'box',
               layout: 'vertical',
-              spacing: 'sm',
               contents: [
                 {
                   type: 'button',
@@ -63,32 +61,82 @@ app.post('/webhook', async (req, res) => {
                   color: '#00C300',
                   action: {
                     type: 'uri',
-                    label: 'ติดต่อผ่าน LINE',
-                    uri: 'https://line.me/R/ti/p/~pinky3456789' // ✅ เปลี่ยนเป็น LINE ID ของคุณ
-                  }
-                },
-                {
-                  type: 'button',
-                  style: 'secondary',
-                  action: {
-                    type: 'uri',
-                    label: 'เยี่ยมชมเว็บไซต์',
-                    uri: 'https://www.youtube.com/watch?v=iCjfiQuAIbo' // ✅ เปลี่ยนเป็นเว็บไซต์ของคุณ
+                    label: 'ทักแชท LINE',
+                    uri: 'https://line.me/R/ti/p/~pinky3456789' // ใส่ LINE ID คุณตรงนี้
                   }
                 }
-              ],
-              flex: 0
+              ]
             }
           }
         };
 
-        await line.reply(event.replyToken, [flexMsg]);
-        continue; // ✅ ข้ามการใช้ Gemini
+        await line.reply(event.replyToken, [contactFlex]);
+        continue;
       }
 
-      // ✅ ถ้าไม่ใช่ "ติดต่อ" จะเรียก Gemini
-      const geminiReply = await gemini.textOnly(userInput);
-      await line.reply(event.replyToken, [{ type: 'text', text: geminiReply }]);
+      // ✅ กรณีผู้ใช้เลือก "ใช้แชทบอท"
+      if (userInput === 'ใช้แชทบอท') {
+        const geminiReply = await gemini.textOnly('สวัสดี! มีอะไรให้ช่วยไหม');
+        await line.reply(event.replyToken, [{ type: 'text', text: geminiReply }]);
+        continue;
+      }
+
+      // ✅ ผู้ใช้พิมพ์อะไรก็ได้ → ตอบกลับ Flex ให้เลือกก่อน
+      const menuFlex = {
+        type: 'flex',
+        altText: 'กรุณาเลือกเมนู',
+        contents: {
+          type: 'bubble',
+          body: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+              {
+                type: 'text',
+                text: 'คุณต้องการทำอะไร?',
+                weight: 'bold',
+                size: 'xl',
+                margin: 'md'
+              },
+              {
+                type: 'text',
+                text: 'กรุณาเลือกเมนูด้านล่าง',
+                size: 'sm',
+                color: '#666666',
+                wrap: true,
+                margin: 'md'
+              }
+            ]
+          },
+          footer: {
+            type: 'box',
+            layout: 'vertical',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'button',
+                style: 'primary',
+                action: {
+                  type: 'message',
+                  label: 'ใช้แชทบอท',
+                  text: 'ใช้แชทบอท'
+                }
+              },
+              {
+                type: 'button',
+                style: 'secondary',
+                action: {
+                  type: 'message',
+                  label: 'ติดต่อ',
+                  text: 'ติดต่อ'
+                }
+              }
+            ]
+          }
+        }
+      };
+
+      await line.reply(event.replyToken, [menuFlex]);
     }
   }
 
