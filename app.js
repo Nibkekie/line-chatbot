@@ -87,6 +87,13 @@ app.post('/webhook', async (req, res) => {
         altText: 'กรุณาเลือกเมนู',
         contents: {
           type: 'bubble',
+          hero: {
+              type: 'image',
+              url: 'https://i.pinimg.com/736x/c0/7c/c7/c07cc7f0c48a44dc286555edb44bd227.jpg',
+              size: 'full',
+              aspectRatio: '20:13',
+              aspectMode: 'cover'
+            },
           body: {
             type: 'box',
             layout: 'vertical',
